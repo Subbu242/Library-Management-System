@@ -1,0 +1,146 @@
+<?php
+	session_start();
+
+	function get_user_id(){
+		$connection = mysqli_connect("localhost:3308","root","");
+		$db = mysqli_select_db($connection,"lms");
+		// $connection = mysqli_connect("nxn9086.uta.cloud","nxn9086_advse","Lms@advse");
+		// $db = mysqli_select_db($connection,"nxn9086_LMS");
+		$userID = 0;
+
+		$query1 = "select id from users where email = '$_SESSION[email]'";
+		$query1_run = mysqli_query($connection,$query1);
+		$row1 = mysqli_fetch_assoc($query1_run);
+		$id=$row1['id'];
+		return($id);
+	}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Borrow Book</title>
+	<meta charset="utf-8" name="viewport" content="width=device-width,intial-scale=1">
+	<link rel="stylesheet" type="text/css" href="bootstrap-4.4.1/css/bootstrap.min.css">
+  	<script type="text/javascript" src="bootstrap-4.4.1/js/juqery_latest.js"></script>
+  	<script type="text/javascript" src="bootstrap-4.4.1/js/bootstrap.min.js"></script>
+  	<script type="text/javascript">
+  		function alertMsg(){
+  			alert('Book added successfully...');
+  			window.location.href = "user_dashboard.php";
+  		}
+  	</script>
+</head>
+<body style="background-color: #80ced6;">
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color:#192128 !important;">
+		<div class="container-fluid">
+			<div class="navbar-header">
+			    <img src="assets/librarylogo.jpg" alt="books" width="53px" height="53px">
+				<a class="navbar-brand" href="user_dashboard.php">Library Management System (LMS)</a>
+			</div>
+			<font style="color: white"><span><strong>Welcome: <?php echo $_SESSION['name'];?></strong></span></font>
+			<font style="color: white"><span><strong>Email: <?php echo $_SESSION['email'];?></strong></font>
+		    <ul class="nav navbar-nav navbar-right">
+		      <li class="nav-item dropdown">
+	        	<a class="nav-link dropdown-toggle" data-toggle="dropdown">My Profile </a>
+	        	<div class="dropdown-menu">
+	        		<a class="dropdown-item" href="view_profile.php">View Profile</a>
+	        		<div class="dropdown-divider"></div>
+	        		<a class="dropdown-item" href="edit_profile.php">Edit Profile</a>
+	        		<div class="dropdown-divider"></div>
+	        		<a class="dropdown-item" href="change_password.php">Change Password</a>
+	        	</div>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="logout.php">Logout</a>
+		      </li>
+		    </ul>
+		</div>
+	</nav><br>
+	<span><marquee>This is library mangement system. Library opens at 8:00 AM and close at 8:00 PM</marquee></span><br><br>
+		<center><h4>Borrow Book</h4><br></center>
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<form action="" method="post">
+					<div class="form-group">
+						<label for="book_name">Book Name:</label>
+						<!-- <input type="text" name="book_name" class="form-control" required> -->
+						<select class="form-control" name="book_name">
+							<option>-Select Book-</option>
+							<?php  
+								$connection = mysqli_connect("localhost:3308","root","");
+								$db = mysqli_select_db($connection,"lms");
+								// $connection = mysqli_connect("nxn9086.uta.cloud","nxn9086_advse","Lms@advse");
+								// $db = mysqli_select_db($connection,"nxn9086_LMS");
+								$query = "select book_name from books";
+								$query_run = mysqli_query($connection,$query);
+								while($row = mysqli_fetch_assoc($query_run)){
+									?>
+									<option><?php echo $row['book_name'];?></option>
+									<?php
+								}
+							?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="book_author">Author ID:</label>
+						<select class="form-control" name="book_author">
+							<option>-Select author-</option>
+							<?php  
+								$connection = mysqli_connect("localhost:3308","root","");
+								$db = mysqli_select_db($connection,"lms");
+								// $connection = mysqli_connect("nxn9086.uta.cloud","nxn9086_advse","Lms@advse");
+								// $db = mysqli_select_db($connection,"nxn9086_LMS");
+								$query = "select author_name from authors";
+								$query_run = mysqli_query($connection,$query);
+								while($row = mysqli_fetch_assoc($query_run)){
+									?>
+									<option><?php echo $row['author_name'];?></option>
+									<?php
+								}
+							?>
+						</select>
+						<!--<input type="text" name="book_author" class="form-control" required> -->
+					</div>
+					<!-- <div class="form-group">
+						<label for="book_no">Book Number:</label>
+						<input type="text" name="book_no" class="form-control" required>
+					</div> -->
+					<div class="form-group">
+						<label for="student_id">Student ID:</label>
+						<input type="text" name="student_id" class="form-control" value="<?php echo get_user_id();?>" readonly>
+					</div>
+					<div class="form-group">
+						<label for="issue_date">Borrow Date:</label>
+						<input type="text" name="issue_date" class="form-control" value="<?php echo date("Y-m-d");?>" readonly>
+					</div>
+					<div class="form-group">
+						<label for="issue_date">Due Date:</label>
+						<input type="text" name="due_date" class="form-control" value="<?php echo date_format(date_add(date_create(date("Y-m-d")),date_interval_create_from_date_string("15 days")),"Y-m-d");?>" readonly>
+					</div>
+					<button type="submit" name="issue_book" class="btn btn-primary">Borrow Book</button>
+				</form>
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+</body>
+</html>
+
+<?php
+	if(isset($_POST['issue_book']))
+	{
+		$connection = mysqli_connect("localhost:3308","root","");
+		$db = mysqli_select_db($connection,"lms");
+		// $connection = mysqli_connect("nxn9086.uta.cloud","nxn9086_advse","Lms@advse");
+		// $db = mysqli_select_db($connection,"nxn9086_LMS");
+		$query = "insert into issued_books values(null,'$_POST[book_name]','$_POST[book_author]',$_POST[student_id],1,'$_POST[issue_date]','$_POST[due_date]')";
+		$query_run = mysqli_query($connection,$query);
+		?>
+		<script>
+			alert('Successfully borrowed the book');
+			window.location.href = "user_dashboard.php";
+		</script>
+		<?php
+		// header("Location:user_dashboard.php");		
+	}
+?>
